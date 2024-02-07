@@ -1,107 +1,48 @@
-import com.github.tototoshi.csv._
+/*Importacion de Paquetes*/
+
+import com.github.tototoshi.csv.*
 import java.io.File
-import org.nspl.*
-import org.nspl.awtrenderer.*
-import org.nspl.data.HistogramData
 
+/* Se utiliza para personalizar el formato de los archivos CSV que se leen o escriben.*/
 implicit object MyFormat extends DefaultCSVFormat {
-  override val delimiter = ';'
+  override val delimiter: Char = ';' // Caractér que está separando cada uno de los valores del archivo.
 }
 
-object Appp {
-  @main
-  def intergador2class(): Unit = {
-    val pathDataFile = "C://Users//RomanEc//ArchivoPIntegrador//dsPartidosYGoles.csv"
-    val reader = CSVReader.open(new File(pathDataFile))
-    //val contentFile: List[List[String]] = reader.all
-    val contentFile: List[Map[String, String]] = reader.allWithHeaders()
+object Datos {
+ @main// Transforma la función manipulacionDatos en un método ejecutable.
+ def manipulacionDatos()=
+   val pathDataFile: String = "C://Users//RomanEc//ArchivoPIntegrador//dsPartidosYGoles.csv" // Indica la ruta del archivo CSV.
+   val reader = CSVReader.open(new File(pathDataFile)) // Crea un objeto CSVReader que se puede usar para leer datos del archivo CSV especificado por pathDataFile.
+   val contentFile: List[Map[String, String]/*Clave y Valor son String.*/] = reader.allWithHeaders() // Almacenar el contenido con encabezados del archivo en la variable.
+   reader.close() // Cerrar el canal de lectura, ya no se necesita abierto.
+   /* println(contentFile.take(3)) // Toma los tres primeros elementos de la lista.*/
+   println(s"******* ESTADISTICAS DESCRIPTIVAS *******")
+   println(s"******* FIN DE ESTADISTICAS *******")
+   println(s"******* PREGUNTAS DE CONSULTA *******")
+   /*PREGUNTAS*/
+   println(s" 1. ¿Qué equipo ha marcado más goles?")
 
-    reader.close()
-    println(contentFile)
+   def Equipos(data: List[Map[String, String]]): Unit =
+     val dataGoles = data
+       .map(row => ( // Lista de tuplas de cuatro
+         row("home_team_name"), //nombre del E.local
+         row("away_team_name"), //nombre del E. visitante
+         row("matches_home_team_score").toInt, // Goles E.local
+         row("matches_away_team_score").toInt // Goles E. visitante
+       ))
+       .distinct // Selecciona valores unicos.
+       .flatMap //Transforma una colección de partidos en una nueva colección.
+           {
+       case (equipoLocal, equipoVisitante, golesLocal, golesVisitante) =>
+         List((equipoLocal, golesLocal), (equipoVisitante, golesVisitante)) //Lista de dos tuplas (Equipos, Goles)
+        } //Aplanar la lista de listas resultante en una única lista.
+       .groupBy(_._1) // Agrupa por el nombre del equipo
+       .map(t2 => (t2._1, t2._2.map(_._2).sum)) //  Transforma a una nueva coleccion. Extraer la segunda componente de cada tupla en t2._2 y sumará.
+       .toList // Transforma en una lista
+     val maximoGoles = dataGoles.maxBy(_._2) //  Encuentra el valor máximo en función de la segunda componente de cada tupla.
+     println(s"El equipo ${maximoGoles._1} es el más goleador con ${maximoGoles._2} goles") // Imprime resultado  en pantalla
 
-    
-
-    def obtenerNombrePais(codigo: String): String = codigo match {
-      case "ARG" => "Argentina"
-      case "BRA" => "Brasil"
-      // Agrega más casos según tus necesidades
-      case _ => codigo // Devuelve el código si no hay coincidencia
-    }
-
-    def paisesMasParticipantes(datos: List[Map[String, String]]) = {
-      val codigosPaisesHome = datos.flatMap(_("home_team_name")).distinct
-      val codigosPaisesAway = datos.flatMap(_("away_team_name")).distinct
-
-      val paisesHome = codigosPaisesHome.map(obtenerNombrePais)
-      val paisesAway = codigosPaisesAway.map(obtenerNombrePais)
-
-      (paisesHome ++ paisesAway).distinct
-    }
-    // Ejemplo de uso
-    val paisesParticipantes = paisesMasParticipantes(contentFile)
-    println(s"Países que han participado en más mundiales: $paisesParticipantes")
-
-
-    /*def mejorPromedioGolesConCantidad(datos: List[Map[String, String]]): (String, Double, Int) = {
-      val golesPorMundial = datos.groupBy(_("tournaments_tournament_name")).mapValues { partidos =>
-        val totalGoles = partidos.map(row => row("matches_home_team_score").toInt + row("matches_away_team_score").toInt).sum
-        val totalPartidos = partidos.length
-        if (totalPartidos > 0) (totalGoles.toDouble / totalPartidos, totalGoles)
-        else (0.0, 0)
-      }
-    //println(contentFile.take(3))
-
-      val (mejorPromedio, totalGolesMejorPromedio) = golesPorMundial.maxBy(_._2._1)._2
-      val mejorPromedioMundial = golesPorMundial.maxBy(_._2._1)._1
-
-      (mejorPromedioMundial, mejorPromedio, totalGolesMejorPromedio)
-    }
-
-    val (mejorPromedioMundial, mejorPromedio, totalGolesMejorPromedio) = mejorPromedioGolesConCantidad(contentFile)
-    println(s"El mundial con el mejor promedio de goles es: $mejorPromedioMundial con $totalGolesMejorPromedio goles")
-    println(s"Mejor promedio de goles por partido: $mejorPromedio")
-/**/
-def promedioPartidosPorMundial(datos: List[Map[String, String]]): Double = {
-  val partidosPorMundial = datos.groupBy(_("matches_tournament_id")).mapValues(_.length)
-  val totalMundiales = partidosPorMundial.size
-
-  if (totalMundiales > 0) {
-    val totalPartidos = partidosPorMundial.values.sum
-    totalPartidos.toDouble / totalMundiales
-  } else {
-    0.0
-  }
-}
-
-    val promedioPartidos = promedioPartidosPorMundial(contentFile)
-    println(s"El promedio de partidos jugados por mundial es: $promedioPartidos")
-    /*
-    */
-
-
-     */
-
-
-    /*println(s"Filas: ${contentFile.length} y Columnas: ${contentFile(1).keys.size} ")*/
-
-    /*charting(contentFile)
-
-    def charting(data: List[Map[String, String]]): Unit = {
-      val camisetas: List[Double] = data
-        .filter(x => x("squads_position_name") == "forward" && x("squads_shirt_number") != "0")
-        .map(x => x("squads_shirt_number").toDouble)
-      //println(camisetas.)
-      val histForwardShirtNum = xyplot(HistogramData(camisetas, 10) -> bar())(
-        par
-          .xlab("N° Shirt")
-          .ylab("freq.")
-          .main("Foward shirt number")
-      )
-
-      pngToFile(new File("C://Users//RomanEc//ArchivoPIntegrador//histogra.png"), histForwardShirtNum.build, 1000)
-    }
-
-    charting(contentFile)*/
-  }
-}
-
+   Equipos(contentFile) //Invocación
+   println(s"******* FIN DE PREGUNTAS *******")
+   println(s"******* GRÁFICAS *******")
+   println(s"******* FIN DE GRÁFICAS *******")
