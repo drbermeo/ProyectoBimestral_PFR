@@ -17,6 +17,30 @@ object Datos {
    reader.close() // Cerrar el canal de lectura, ya no se necesita abierto.
    /* println(contentFile.take(3)) // Toma los tres primeros elementos de la lista.*/
    println(s"******* ESTADISTICAS DESCRIPTIVAS *******")
+
+  // Supongamos que tienes una lista de mapas llamada partidos que contiene información sobre los partidos.
+  // Cada mapa representa la información de un partido.
+
+   def stadiums(data: List[Map[String, String]]) =
+      val capacidadesEstadios = data
+        .map(row => ( // Lista de tuplas de tres
+          row("stadiums_stadium_name"), // Nombre de los estadios.
+          row("stadiums_city_name"), //Nombre de la ciudad donde estan los estadios.
+          row("stadiums_stadium_capacity").toInt, //Capacidad de cada estadio
+        ))
+        .distinct // Selecciona Valores únicos
+        .groupBy(_._1) // Agrupa por nombres de los estadios
+        .map((t2 => (t2._1, t2._2.map(_._3).sum))) //Transforma a una nueva coleccion. Extraer la tercera componente de cada tupla en t2._2 y sumará.
+        .toList
+   // Calcular capacidad mínima y máxima
+      val capacidadMinima = capacidadesEstadios.minBy(_._2)._2/*Se obtiene  la tupla que tiene el mínimo valor en el segundo elemento, luego se accede al segundo elemento de esa tupla.*/
+      val capacidadMaxima = capacidadesEstadios.maxBy(_._2)._2//Se obtiene  la tupla que tiene el máximo valor en el segundo elemento, luego se accede al segundo elemento de esa tupla
+      val promedioCapacidades = capacidadesEstadios.map(_._2).sum.toDouble / capacidadesEstadios.size
+      println(s"Capacidad mínima de estadios: $capacidadMinima")
+      println(s"Capacidad máxima de estadios: $capacidadMaxima")
+      println(s"Promedio de Capacidades de Estadios: ${"%.2f".format(promedioCapacidades)}") // Obtener resultado con dos decimales.
+
+   stadiums(contentFile)
    println(s"******* FIN DE ESTADISTICAS *******")
    println(s"******* PREGUNTAS DE CONSULTA *******")
    /*PREGUNTAS*/
@@ -46,3 +70,7 @@ object Datos {
    println(s"******* FIN DE PREGUNTAS *******")
    println(s"******* GRÁFICAS *******")
    println(s"******* FIN DE GRÁFICAS *******")
+
+
+
+}
