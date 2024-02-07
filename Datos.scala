@@ -1,21 +1,23 @@
-/*Importacion de Paquetes*/
-import com.github.tototoshi.csv.*
+import com.github.tototoshi.csv._
 import java.io.File
+import org.nspl.*
+import org.nspl.awtrenderer.*
+import org.nspl.data.HistogramData
 
-/* Se utiliza para personalizar el formato de los archivos CSV que se leen o escriben.*/
 implicit object MyFormat extends DefaultCSVFormat {
-  override val delimiter: Char = ';' // Caractér que está separando cada uno de los valores del archivo.
+  override val delimiter = ';'
 }
+
 
 object Datos {
   @main// Transforma la función manipulacionDatos en un método ejecutable.
   def manipulacionDatos()=
     val pathDataFile: String = "C://Users//RomanEc//ArchivoPIntegrador//dsPartidosYGoles.csv" // Indica la ruta del archivo CSV.
     val reader = CSVReader.open(new File(pathDataFile)) // Crea un objeto CSVReader que se puede usar para leer datos del archivo CSV especificado por pathDataFile.
-    val contentFile: List[Map[String, String]/Clave y Valor son String./] = reader.allWithHeaders() // Almacenar el contenido con encabezados del archivo en la variable.
+    val contentFile: List[Map[String, String]/*Clave y Valor son String.*/] = reader.allWithHeaders() // Almacenar el contenido con encabezados del archivo en la variable.
     reader.close() // Cerrar el canal de lectura, ya no se necesita abierto.
     /* println(contentFile.take(3)) // Toma los tres primeros elementos de la lista.*/
-    println(s"*** ESTADISTICAS DESCRIPTIVAS ***")
+    println(s"******* ESTADISTICAS DESCRIPTIVAS *******")
 
     def stadiums(data: List[Map[String, String]]) =
       val capacidadesEstadios = data
@@ -26,10 +28,10 @@ object Datos {
         ))
         .distinct // Selecciona Valores únicos
         .groupBy(_._1) // Agrupa por nombres de los estadios
-        .map((t2 => (t2.1, t2._2.map(._3).sum))) //Transforma a una nueva coleccion. Extraer la tercera componente de cada tupla en t2._2 y sumará.
+        .map((t2 => (t2._1, t2._2.map(_._3).sum))) //Transforma a una nueva coleccion. Extraer la tercera componente de cada tupla en t2._2 y sumará.
         .toList
       // Calcular capacidad mínima y máxima
-      val capacidadMinima = capacidadesEstadios.minBy(_._2)._2/Se obtiene  la tupla que tiene el mínimo valor en el segundo elemento, luego se accede al segundo elemento de esa tupla./
+      val capacidadMinima = capacidadesEstadios.minBy(_._2)._2/*Se obtiene  la tupla que tiene el mínimo valor en el segundo elemento, luego se accede al segundo elemento de esa tupla.*/
       val capacidadMaxima = capacidadesEstadios.maxBy(_._2)._2//Se obtiene  la tupla que tiene el máximo valor en el segundo elemento, luego se accede al segundo elemento de esa tupla
       val promedioCapacidades = capacidadesEstadios.map(_._2).sum.toDouble / capacidadesEstadios.size
       println(s"Capacidad mínima de estadios: $capacidadMinima")
@@ -37,9 +39,9 @@ object Datos {
       println(s"Promedio de Capacidades de Estadios: ${"%.2f".format(promedioCapacidades)}") // Obtener resultado con dos decimales.
     stadiums(contentFile)
 
-    println(s"*** FIN DE ESTADISTICAS ***")
-    println(s"*** PREGUNTAS DE CONSULTA ***")
-    /PREGUNTAS/
+    println(s"******* FIN DE ESTADISTICAS *******")
+    println(s"******* PREGUNTAS DE CONSULTA *******")
+    /*PREGUNTAS*/
     println(s" 1. ¿Qué equipo ha marcado más goles?")
 
     def Equipos(data: List[Map[String, String]]): Unit = // Lista de Mapas (Clave/Valor)
@@ -52,11 +54,10 @@ object Datos {
         ))
         .distinct // Selecciona valores unicos.
         .flatMap //Transforma una colección de partidos en una nueva colección.
-            {  case (equipoLocal, equipoVisitante, golesLocal, golesVisitante) =>
-               List((equipoLocal, golesLocal), (equipoVisitante, golesVisitante)) //Lista de dos tuplas (Equipos, Goles)
-         } //Aplanar la lista de listas resultante en una única lista.
+            {  case (equipoLocal, equipoVisitante, golesLocal, golesVisitante) => List((equipoLocal, golesLocal), (equipoVisitante, golesVisitante)) //Lista de dos tuplas (Equipos, Goles)
+           } //Aplanar la lista de listas resultante en una única lista.
         .groupBy(_._1) // Agrupa por el nombre del equipo
-        .map(t2 => (t2.1, t2._2.map(._2).sum)) //  Transforma a una nueva coleccion. Extraer la segunda componente de cada tupla en t2._2 y sumará.
+        .map(t2 => (t2._1, t2._2.map(_._2).sum)) //  Transforma a una nueva coleccion. Extraer la segunda componente de cada tupla en t2._2 y sumará.
         .toList // Transforma en una lista
       val maximoGoles = dataGoles.maxBy(_._2) //  Encuentra el valor máximo en función de la segunda componente de cada tupla.
       println(s"El equipo ${maximoGoles._1} es el más goleador con ${maximoGoles._2} goles") // Imprime resultado  en pantalla
@@ -67,7 +68,7 @@ object Datos {
     println(s" 2. ¿Cúal es el promedio de partidos jugados por mundial?")
     def promedioPartidosPorMundial(datos: List[Map[String, String]]):Double= { // Lista de Mapas: Devuelve un Double
       val partidosPorMundial = datos.groupBy(_("matches_tournament_id"))
-      /Agrupa los datos por el identificador del torneo: (identificadores de los torneos, listas de partidos asociados a cada torneo)/
+      /*Agrupa los datos por el identificador del torneo: (identificadores de los torneos, listas de partidos asociados a cada torneo)*/
       val totalMundiales = partidosPorMundial.size // Obtiene el total de torneos distintos
       val totalPartidos = partidosPorMundial.values //devuelve una colección de todas las listas de partidos
         .flatten // Combina a una sola lista
@@ -95,45 +96,64 @@ object Datos {
           && row("matches_result") != "draw") //Verifica si el valor que contiene la clave es diferente.
     }
 
-  // Llamada a la función para obtener el total de partidos con resultado diferente de empate
-      val totalPartidos: Int = getTotalPartidos(contentFile)
+    // Llamada a la función para obtener el total de partidos con resultado diferente de empate
+    val totalPartidos: Int = getTotalPartidos(contentFile)
+    println(s"Total de partidos con resultado diferente de empate: $totalPartidos partidos")  // Imprime el resultado en la consola
+    println(s"******* FIN DE PREGUNTAS *******")
 
-  // Imprime el resultado en la consola
-      println(s"Total de partidos con resultado diferente de empate: $totalPartidos partidos")
+    println(s"******* GRÁFICAS *******")
+    println(s"Las grafias se encuentran en la ruta: C://Users//RomanEc//ArchivoPIntegrador")
+    val pathDataFile2 = "C://Users//RomanEc//ArchivoPIntegrador//dsAlineacionesXTorneo.csv"
+    val reader2 = CSVReader.open(new File(pathDataFile2))
+    val contentFile2: List[Map[String, String]] = reader2.allWithHeaders()
+    reader2.close()
+    // Crear histogramas llamando a la función charting con diferentes columnas y etiquetas
+    charting(contentFile, "squads_shirt_number", "Número de Camiseta")
+    charting(contentFile, "squads_position_name", "Posición")
+    charting(contentFile, "players_birth_date", "Fecha de Nacimiento")
+    charting(contentFile, "squads_team_id", "ID del Equipo")
 
-  /*
- def getTotalPartidos(data: List[Map[String, String]]): Int = {
-   // Retorna el número de filas donde el resultado es diferente de "empate"
-   data
-      .count(row => row.contains("matches_match_id") && row.contains("matches_result") && row("matches_result") != "draw")
+    charting2(contentFile2)
 
- }
-
- // Llamada a la función para obtener el total de partidos con resultado diferente de empate
- val totalPartidos: Int = getTotalPartidos(contentFile)
- // Imprime el resultado en la consola
- println(s"Total de partidos con resultado diferente de empate: $totalPartidos partidos")*/
-
-    println(s"*** FIN DE PREGUNTAS ***")
-    println(s"*** GRÁFICAS ***")
-    /*  val totalTeamsByTournament: Map[String, Int] = /* Cálculo de la cantidad de equipos por torneo */
-
-      // Obtén la secuencia de la cantidad de equipos por torneo
-      val teamCounts = totalTeamsByTournament.values.toSeq
-
-      // Crea un gráfico de barras para visualizar la distribución de la cantidad de equipos
-      val barPlot = barplot(
-        data = teamCounts,
-        main = "Distribución de la cantidad de equipos en los torneos",
-        xlab = "Torneos",
-        ylab = "Cantidad de equipos",
-        color = Color.blue
+    def charting2(data: List[Map[String, String]]): Unit = {
+      val jugadoresDelanteros: List[Double] = data
+        .filter(x => x("squads_tournament_id") == "WC-2015")
+        .map(x => x("players_forward").toDouble)
+      //HISTOGRAMA QUE MUESTRA LA FRECUENCIA DE LOS JUGADORES DELANTEROS DEL MUNDIAL WC-2015
+      val histForwardShirtNum = xyplot(HistogramData(jugadoresDelanteros, 10) -> bar())(
+        par
+          .xlab("N° Jugadores Delanteros")
+          .ylab("freq.")
+          .main("WC-2015 && Jugadores Delanteros")
       )
+      val histFordwardShirtNumber = xyplot()
+      pngToFile(new File("C://Users//RomanEc//ArchivoPIntegrador//jugadoresdelanteros.png"), histForwardShirtNum.build, 1000)
 
-      // Guarda el gráfico de barras en la ruta especificada
-      pngToFile(new java.io.File("C://ruta//grafico_barras.png"), barPlot.build, 1000)*/
+    }
 
+      charting2(contentFile2)
 
-    println(s"*** FIN DE GRÁFICAS ***")
+      // Definir la función charting que crea un histograma y lo guarda como un archivo PNG
+      def charting(data: List[Map[String, String]], columnName: String, label: String): Unit = {
+        // Filtrar y mapear los valores de la columna especificada como Double
+        val columnValues: List[Double] = data
+          .filter(x => x.contains(columnName) && isNumeric(x(columnName)))
+          .map(x => x(columnName).toDouble)
 
-}
+        // Crear un histograma utilizando la biblioteca NSPL
+        val hist = xyplot(HistogramData(columnValues, 10) -> bar())(
+          par
+            .xlab(label)
+            .ylab("freq.")
+            .main(s"Histograma de $label")
+        )
+
+        // Guardar el histograma como un archivo PNG en una ubicación específica
+        val fileName = s"histograma_${columnName.replaceAll("\\s", "_")}.png"
+        pngToFile(new File(s"C:/Users/RomanEc/ArchivoPIntegrador/$fileName"), hist.build, 1000)
+      }
+
+       println(s"******* FIN DE GRÁFICAS *******")
+      // Función para verificar si una cadena es numérica
+      def isNumeric(s: String): Boolean = s.matches("[-+]?\\d*\\.?\\d+") // verifica si la cadena cumple con el formato de un número, ya sea entero, decimal, positivo o negativo
+    }
