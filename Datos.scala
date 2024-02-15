@@ -128,12 +128,11 @@ object Datos {
       )
       val histFordwardShirtNumber = xyplot()
       pngToFile(new File("C://Users//RomanEc//ArchivoPIntegrador//jugadoresdelanteros.png"), histForwardShirtNum.build, 1000)
-
     }
 
       charting2(contentFile2)
 
-      // Definir la función charting que crea un histograma y lo guarda como un archivo PNG
+      // Función charting que crea un histograma y lo guarda como un archivo PNG
       def charting(data: List[Map[String, String]], columnName: String, label: String): Unit = {
         // Filtrar y mapear los valores de la columna especificada como Double
         val columnValues: List[Double] = data
